@@ -1,9 +1,20 @@
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/Scatch");
+// mongoose.connect("mongodb://localhost:27017/Scatch");
 const userSchema = new mongoose.Schema({
-  fullname: String,
-  email: String,
-  password: String,
+  fullname: {
+    type: String,
+    minlength: 3,
+    trim: true,
+  },
+  email: {
+    type: String,
+    unique: true,
+    lowercase: true,
+  },
+  password: {
+    type: String,
+    minlength: 6,
+  },
   cart: {
     type: Array,
     default: [],
