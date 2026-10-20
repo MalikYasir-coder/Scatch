@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Explore thoughtfully chosen bags for every kind of day."
+    />
+    <title>Shop bags — Scatch</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <script src="/javascripts/shop.js" defer></script>
+  </head>
+  <body class="shop-body">
+    <header class="shop-header">
+      <a class="brand" href="/users/shop" aria-label="Scatch shop">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>scatch</span>
+      </a>
+      <nav class="shop-nav" aria-label="Main navigation">
+        <a href="#collection">Shop</a>
+        <a class="cart-nav" href="#your-bag">
+          Your bag <span class="cart-count"><%= cartCount %></span>
+        </a>
+        <span class="shop-greeting">Hi, <%= user.fullname %></span>
+        <form action="/users/logout" method="post">
+          <button class="logout-button" type="submit">Log out</button>
+        </form>
+      </nav>
+    </header>
+
+    <main class="shop-main">
+      <% if (checkoutError) { %>
+        <p class="shop-alert shop-alert-error" role="alert">
+          <%= checkoutError %>
+        </p>
+      <% } %>
+
+      <section class="shop-hero">
+        <div class="shop-hero-copy">
+          <p class="eyebrow">Carry a little joy</p>
+          <h1>Bags for the<br /><span>everyday extraordinary.</span></h1>
+          <p>
+            Thoughtful companions for slow mornings, busy weekdays, and
+            spontaneous getaways.
+          </p>
+          <a class="button button-primary" href="#collection">
+            Explore the collection <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+        <div class="shop-hero-art" aria-hidden="true">
+          <div class="hero-sun"></div>
+          <div class="hero-bag">👜</div>
+          <span class="hero-note">MADE FOR<br />YOUR EVERYDAY</span>
+          <span class="hero-star">✳</span>
+        </div>
+      </section>
+
+      <section class="collection-section" id="collection">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">The Scatch edit</p>
+            <h2>Find your new favorite</h2>
+          </div>
+          <label class="shop-search">
+            <span class="visually-hidden">Search bags</span>
+            <span aria-hidden="true">⌕</span>
+            <input id="product-search" type="search" placeholder="Search bags" />
+          </label>
+        </div>
+
+        <div class="shop-layout">
+          <div class="catalog">
+            <div class="category-filters" aria-label="Filter bags by category">
+              <button class="filter-chip is-active" type="button" data-category="All">All bags</button>
+              <% categories.forEach((category) => { %>
+                <button class="filter-chip" type="button" data-category="<%= category %>"><%= category %></button>
+              <% }) %>
+            </div>
+
+            <div class="product-grid" id="product-grid">
+              <% products.forEach((product) => { %>
+                <article
+                  class="product-card"
+                  data-category="<%= product.category %>"
+                  data-name="<%= product.name.toLowerCase() %>"
+                >
+                  <div class="product-art" style="--bag-color: <%= product.color %>">
+                    <% if (product.label) { %>
+                      <span class="product-label"><%= product.label %></span>
+                    <% } %>
+                    <button
+                      class="favorite-button"
+                      type="button"
+                      aria-label="Add <%= product.name %> to favorites"
+                      aria-pressed="false"
+                    >♡</button>
+                    <span class="product-symbol" aria-hidden="true"><%= product.symbol %></span>
+                  </div>
+                  <div class="product-info">
+                    <div>
+                      <p class="product-category"><%= product.category %></p>
+                      <h3><%= product.name %></h3>
+                    </div>
+                    <p class="product-price"><%= formatPrice(product.price) %></p>
+                  </div>
+                  <p class="product-description"><%= product.description %></p>
+                  <form action="/users/cart/add" method="post">
+                    <input type="hidden" name="productId" value="<%= product.id %>" />
+                    <button class="add-to-bag" type="submit">
+                      Add to bag <span aria-hidden="true">+</span>
+                    </button>
+                  </form>
+                </article>
+              <% }) %>
+              <p class="no-products" id="no-products" hidden>
+                No bags match that search. Try another name or category.
+              </p>
+            </div>
+          </div>
+
+          <aside class="bag-panel" id="your-bag" aria-labelledby="bag-title">
+            <div class="bag-panel-heading">
+              <div>
+                <p class="eyebrow">Ready when you are</p>
+                <h2 id="bag-title">Your bag</h2>
+              </div>
+              <span class="bag-panel-count"><%= cartCount %></span>
+            </div>
+
+            <% if (cartItems.length === 0) { %>
+              <div class="empty-bag">
+                <span aria-hidden="true">🛍️</span>
+                <p>Your bag is waiting for something lovely.</p>
+              </div>
+            <% } else { %>
+              <ul class="bag-items">
+                <% cartItems.forEach((item) => { %>
+                  <li class="bag-item">
+                    <span class="bag-item-symbol" style="--bag-color: <%= item.product.color %>" aria-hidden="true"><%= item.product.symbol %></span>
+                    <span class="bag-item-details">
+                      <strong><%= item.product.name %></strong>
+                      <small>Qty <%= item.quantity %></small>
+                    </span>
+                    <span class="bag-item-price"><%= formatPrice(item.lineTotal) %></span>
+                  </li>
+                <% }) %>
+              </ul>
+              <div class="bag-total">
+                <span>Subtotal</span>
+                <strong><%= formatPrice(cartTotal) %></strong>
+              </div>
+              <form class="order-form" action="/users/checkout" method="post">
+                <h3 class="order-form-title">Delivery details</h3>
+                <div class="order-form-fields">
+                  <label class="form-field" for="shipping-name">
+                    <span>Recipient name</span>
+                    <input id="shipping-name" name="shippingName" type="text" value="<%= user.fullname %>" maxlength="100" autocomplete="name" required />
+                  </label>
+                  <label class="form-field" for="shipping-phone">
+                    <span>Phone number</span>
+                    <input id="shipping-phone" name="phone" type="tel" maxlength="20" autocomplete="tel" placeholder="03xx xxxxxxx" required />
+                  </label>
+                  <label class="form-field" for="shipping-email">
+                    <span>Email for order confirmation</span>
+                    <input id="shipping-email" name="email" type="email" value="<%= user.email %>" maxlength="254" autocomplete="email" required />
+                  </label>
+                  <label class="form-field" for="shipping-address">
+                    <span>Street address</span>
+                    <input id="shipping-address" name="addressLine1" type="text" maxlength="200" autocomplete="street-address" required />
+                  </label>
+                  <label class="form-field" for="shipping-city">
+                    <span>City</span>
+                    <input id="shipping-city" name="city" type="text" maxlength="100" autocomplete="address-level2" required />
+                  </label>
+                  <label class="form-field" for="shipping-province">
+                    <span>Province</span>
+                    <input id="shipping-province" name="province" type="text" maxlength="100" autocomplete="address-level1" />
+                  </label>
+                  <label class="form-field" for="shipping-postal">
+                    <span>Postal code <small>(optional)</small></span>
+                    <input id="shipping-postal" name="postalCode" type="text" maxlength="20" autocomplete="postal-code" />
+                  </label>
+                </div>
+
+                <fieldset class="payment-options">
+                  <legend>Payment method</legend>
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="cash_on_delivery" checked required />
+                    <span>
+                      <strong>Cash on delivery</strong>
+                      <small>Pay when your order arrives.</small>
+                    </span>
+                  </label>
+                </fieldset>
+
+                <button class="button button-primary checkout-button" type="submit">
+                  Place order <span aria-hidden="true">→</span>
+                </button>
+              </form>
+            <% } %>
+            <p class="shipping-note">A little joy, delivered with care.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="shop-perks" aria-label="Shopping benefits">
+        <div><span aria-hidden="true">✳</span><strong>Thoughtful picks</strong><small>Chosen for everyday life</small></div>
+        <div><span aria-hidden="true">♡</span><strong>Made to be kept</strong><small>Style that goes the distance</small></div>
+        <div><span aria-hidden="true">↗</span><strong>Easy ordering</strong><small>Your bag stays with your account</small></div>
+      </section>
+
+      <% if (recentOrders.length > 0) { %>
+        <section class="recent-orders" aria-labelledby="recent-orders-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Your Scatch account</p>
+              <h2 id="recent-orders-title">Recent orders</h2>
+            </div>
+          </div>
+          <ul class="recent-order-list">
+            <% recentOrders.forEach((order) => { %>
+              <li class="recent-order">
+                <a href="/users/orders/<%= order._id %>">
+                  <span>
+                    <strong>Order <%= order._id.toString().slice(-8).toUpperCase() %></strong>
+                    <small><%= new Date(order.createdAt).toLocaleDateString("en-PK") %></small>
+                  </span>
+                  <span class="order-status"><%= order.status.replaceAll("_", " ") %></span>
+                  <strong><%= formatPrice(order.amountTotal) %></strong>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </li>
+            <% }) %>
+          </ul>
+        </section>
+      <% } %>
+    </main>
+
+    <footer class="shop-footer">
+      <a class="brand" href="/users/shop">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>scatch</span>
+      </a>
+      <span>Carry a little joy. © Scatch</span>
+    </footer>
+  </body>
+</html>

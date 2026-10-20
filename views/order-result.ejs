@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order details — Scatch</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body class="auth-body">
+    <main class="auth-page">
+      <a class="brand auth-brand" href="/users/shop" aria-label="Scatch shop">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>scatch</span>
+      </a>
+      <section class="auth-card order-result" aria-labelledby="order-title">
+        <div class="payment-result-icon" aria-hidden="true">
+          ✓
+        </div>
+        <p class="eyebrow">
+          Order received
+        </p>
+        <h1 class="auth-title" id="order-title">
+          Your order is placed
+        </h1>
+        <p class="auth-intro">
+          <%= order.paymentMethod === "cash_on_delivery"
+            ? "Please pay the total in cash when your order is delivered."
+            : "This order used a payment method that is no longer available. Contact the store before paying." %>
+        </p>
+
+        <div class="payment-order-summary">
+          <span>Order number</span>
+          <strong><%= order._id.toString() %></strong>
+          <span>Payment method</span>
+          <strong><%= order.paymentMethod === "cash_on_delivery" ? "Cash on delivery" : "Bank transfer" %></strong>
+          <span>Order status</span>
+          <strong><%= order.status.replaceAll("_", " ") %></strong>
+          <span>Total</span>
+          <strong><%= formatPrice(order.amountTotal) %></strong>
+        </div>
+
+        <% if (order.paymentMethod !== "cash_on_delivery") { %>
+          <p class="order-confirmation-note">
+            This order used a payment method that is no longer available. Please contact the store before paying.
+          </p>
+        <% } %>
+
+        <section class="order-delivery" aria-labelledby="delivery-title">
+          <h2 id="delivery-title">Delivery details</h2>
+          <p><strong><%= order.shippingDetails.name %></strong></p>
+          <p><a href="mailto:<%= order.shippingDetails.email %>"><%= order.shippingDetails.email %></a></p>
+          <p><a href="tel:<%= order.shippingDetails.phone %>"><%= order.shippingDetails.phone %></a></p>
+          <p>
+            <%= order.shippingDetails.address.line1 %>,
+            <%= order.shippingDetails.address.city %>
+            <% if (order.shippingDetails.address.state) { %>
+              , <%= order.shippingDetails.address.state %>
+            <% } %>
+            <% if (order.shippingDetails.address.postal_code) { %>
+              <%= order.shippingDetails.address.postal_code %>
+            <% } %>
+            , Pakistan
+          </p>
+          <p class="order-confirmation-note">
+            <% if (notificationAvailability.email) { %>
+              Email confirmation settings are configured. Check your inbox and spam folder.
+            <% } else { %>
+              Email confirmation is not active. Add your Gmail address and 16-character Google App Password to your local .env file, then restart the app.
+            <% } %>
+            <% if (notificationAvailability.sms) { %>
+              SMS confirmation settings are configured. Delivery may take a short time.
+            <% } else { %>
+              SMS confirmation is not active. Add Twilio settings to your local .env file.
+            <% } %>
+          </p>
+        </section>
+
+        <ul class="order-result-items">
+          <% orderItems.forEach((item) => { %>
+            <li>
+              <span class="bag-item-symbol" style="--bag-color: <%= item.color %>" aria-hidden="true"><%= item.symbol %></span>
+              <span class="bag-item-details">
+                <strong><%= item.name %></strong>
+                <small>Qty <%= item.quantity %> · <%= formatPrice(item.unitAmount) %> each</small>
+              </span>
+              <strong><%= formatPrice(item.unitAmount * item.quantity) %></strong>
+            </li>
+          <% }) %>
+        </ul>
+
+        <a class="button button-primary payment-return" href="/users/shop">
+          Return to Scatch <span aria-hidden="true">→</span>
+        </a>
+      </section>
+    </main>
+  </body>
+</html>
