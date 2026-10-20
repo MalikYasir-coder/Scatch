@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log in — Scatch</title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body class="auth-body">
+    <main class="auth-page">
+      <a class="brand auth-brand" href="/" aria-label="Scatch home">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>scatch</span>
+      </a>
+
+      <section class="auth-card" aria-labelledby="auth-title">
+        <p class="eyebrow">Good to see you</p>
+        <h1 class="auth-title" id="auth-title">Welcome back</h1>
+        <p class="auth-intro">Log in to continue discovering.</p>
+
+        <% if (message) { %>
+          <p class="form-message form-success" role="status"><%= message %></p>
+        <% } %>
+        <% if (error) { %>
+          <p class="form-message form-error" role="alert"><%= error %></p>
+        <% } %>
+
+        <form class="auth-form" action="/users/login" method="post">
+          <div class="form-field">
+            <label for="email">Email address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              maxlength="254"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button class="button button-primary auth-submit" type="submit">
+            Log in <span aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <p class="auth-switch">
+          New to Scatch? <a href="/users/create">Create an account</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
